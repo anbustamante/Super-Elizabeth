@@ -16,12 +16,19 @@ public class Princesa {
 	int direccion = 4;
 	Integer ciclo = 0;
 	
+	boolean saltando = false;
+	double velocidadSalto = 12;
+	double gravedad = 0.9;
+	double velocidadY = 0;
+	double posicionInicialY;
+	
 	
 	
 	public Princesa(double x, double y) {
 		super();
 		this.setX(x);
 		this.y = y;
+		this.posicionInicialY = y;
 		direccion = 4;
 		this.img1 = Herramientas.cargarImagen("sprites/princesa-quieta-der.png");
 		this.img2 = Herramientas.cargarImagen("sprites/princesa-corriendo-der.png");
@@ -30,8 +37,21 @@ public class Princesa {
 		
 	}
 
-	public void dibujarse(Entorno entorno,Integer ticks)
-	{
+	
+
+	public void dibujarse(Entorno entorno,Integer ticks){
+		
+		
+		if (saltando) {
+	        this.y += velocidadY;
+	        velocidadY += gravedad;
+
+	        // Si alcanza el suelo
+	        if (this.y >= posicionInicialY) {
+	            this.y = posicionInicialY;
+	            saltando = false;
+	        }
+	    }
 		ciclo = ticks % 40;
 		
 		if(this.direccion == 0) {
@@ -49,6 +69,24 @@ public class Princesa {
 		}else if(this.direccion == 4) {
 			this.dibujarDerecha1(entorno);
 		}
+		
+		if(this.direccion == 0) {
+	        if(ciclo >= 0 && ciclo < 21) {
+	            this.dibujarDerecha1(entorno);
+	        } else if(ciclo > 20 && ciclo <= 40) {
+	            this.dibujarDerecha2(entorno);
+	        }
+	    } else if(this.direccion == 1) {
+	        if(ciclo >= 0 && ciclo < 21) {
+	            this.dibujarIzquierda1(entorno);
+	        } else if(ciclo > 20 && ciclo <= 40) {
+	            this.dibujarIzquierda2(entorno);
+	        }
+	    } else if(this.direccion == 4) {
+	        this.dibujarDerecha1(entorno);
+	    }
+		
+		
 	}
 	
 	public void dibujarDerecha1(Entorno entorno) {
@@ -63,6 +101,10 @@ public class Princesa {
 	public void dibujarIzquierda2(Entorno entorno) {
 		entorno.dibujarImagen(img4, this.getX(), this.y, 0, 0.08);
 	}
+	
+	 
+	
+	
 	
 	public void moverDerecha() {
         this.setX(this.getX() + 3);
@@ -89,5 +131,11 @@ public class Princesa {
 	public void estaQuieta() {
 		this.direccion=4;
 	}
+	 public void saltar() {
+	        if (!saltando) {
+	            saltando = true;
+	            velocidadY = -velocidadSalto;
+	        }
+	 }
 
 }

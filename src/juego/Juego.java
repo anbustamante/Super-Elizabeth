@@ -57,7 +57,16 @@ public class Juego extends InterfaceJuego {
 		if (!entorno.estaPresionada(entorno.TECLA_IZQUIERDA) && !entorno.estaPresionada(entorno.TECLA_DERECHA)) {
 			princesa.estaQuieta();
 		}
+		
+		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+			princesa.saltar();
+		}
+		
+		
+		
 	}
+	
+	
 	
 	private void dibujarPisoSolido() {
 		for(int i = 0;i<bloques.length-1;i++) {
@@ -72,16 +81,25 @@ public class Juego extends InterfaceJuego {
 	private void inicializarBloques(int altura, int cantidad, boolean rompible) {
 	    int x = 10;
 	    int numFilas = 4; // número de filas de bloques (ajustar según sea necesario)
+	    Random r = new Random ();
 
 	    for (int fila = 0; fila < numFilas; fila++) {
+	    	ArrayList<Integer> bloquesRompibles = new ArrayList<>();
+	    	while (bloquesRompibles.size() < 3) {
+                int posicion = r.nextInt(ANCHO_DE_BLOQUES);
+                if (!bloquesRompibles.contains(posicion)) {
+                	bloquesRompibles.add(posicion);}
+	    	
 	        for (int i = 0; i < ANCHO_DE_BLOQUES; i++) {
 	            int index = fila * ANCHO_DE_BLOQUES + i;
 	            int alturaBloque = altura - (SEPARACION * fila);
-	            bloques[index] = new Bloque(x, alturaBloque);
+	            boolean esRompible = bloquesRompibles.contains(i);
+	           
+	            bloques[index] = new Bloque(x, alturaBloque,esRompible);
 	            x += 30;
 	        }
 	        x = 10; // Resetear x para la siguiente fila
-	    }
+	    }}
 	}
 	
 	@SuppressWarnings("unused")
