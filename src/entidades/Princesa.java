@@ -7,7 +7,7 @@ import entorno.Herramientas;
 
 public class Princesa {
 	
-	private double x;
+	double x;
 	double y;
 	Image img1;
 	Image img2;
@@ -36,7 +36,7 @@ public class Princesa {
 		
 		if(this.direccion == 0) {
 			if(ciclo >= 0 && ciclo < 21) {
-				this.dibujarDerecha1(entorno);
+		 		this.dibujarDerecha1(entorno);
 			}else if(ciclo > 20 && ciclo <=40) {
 				this.dibujarDerecha2(entorno);
 			}
@@ -83,6 +83,9 @@ public class Princesa {
 		this.x = x;
 	}
 
+	
+	//Esta funcion es para poder hacer que cuando no se presionen teclas
+	//No haga la animacion de estar corriendo
 	public void estaQuieta() {
 		this.direccion=4;
 	}
