@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import entidades.Bloque;
+import entidades.Dinosaurio;
 import entidades.Fondo;
+import entidades.Menu;
 import entidades.Princesa;
 import entorno.Entorno;
 import entorno.InterfaceJuego;
@@ -16,7 +18,10 @@ public class Juego extends InterfaceJuego {
 	private Entorno entorno;	
 	private int ticksCounter = 0;
 	private Princesa princesa;
+	private Dinosaurio dinosaurio;
 	private Fondo fondo;
+	private Menu menu;
+    private boolean enJuego;
 	private Bloque[] bloques = new Bloque[600];
 	int ANCHO_DE_BLOQUES = 27;
 	int SEPARACION = 150;
@@ -27,22 +32,36 @@ public class Juego extends InterfaceJuego {
 		Random rand = new Random();
 		this.entorno = new Entorno(this, " Super Elizabeth Sis, Volcano Edition - Grupo ... - v1", 800, 600);
 		
-		
+		//Carga menu
+        menu = new Menu();
+        enJuego = false;
+        
+        
 		inicializarBloques(570,27,false);
 		
 		fondo = new Fondo(400,300);
 		princesa = new Princesa(400, 535);
+		dinosaurio = new Dinosaurio(400, 85);
+		
 		this.entorno.iniciar();
 	}
 
 
 	public void tick() {
+		if (!enJuego) {
+            menu.dibujar(entorno);
+            menu.play(entorno);
+            if (menu.isJuegoIniciado()) {
+                enJuego = true;
+            }
+        } else {
 			ticksCounter+=2;
 			fondo.dibujarse(entorno);
 			princesa.dibujarse(entorno, ticksCounter);
 			dibujarPisoSolido();
 			movimientosPrincesa();
-		
+			dinosaurio.dibujarse(entorno, ticksCounter);
+        }
 	}
 
 	private void movimientosPrincesa() {

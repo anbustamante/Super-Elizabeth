@@ -22,7 +22,7 @@ public class Bloque {
 		this.y = y;
 		this.rompible = rompible;
 		this.img1 = Herramientas.cargarImagen("sprites/bloque.png");
-		this.img2 = Herramientas.cargarImagen("sprites/bloqueRompible.png");
+		this.img2 = Herramientas.cargarImagen("sprites/bloque-rompible.png");
 		this.id = id;
 
 	}
