@@ -15,6 +15,8 @@ public class Dinosaurio {
     Image img4;
     int direccion; // 0: derecha, 1: izquierda
     Integer ciclo;
+    double velocidadY = 0;
+    double gravedad = 0.9;
     
     public Dinosaurio(double x, double y) {
         this.x = x;
@@ -82,4 +84,39 @@ public class Dinosaurio {
             moverDerecha();
         }
     }
+    
+
+    // Método para aplicar la gravedad al dinosaurio
+       public void aplicarGravedad(Bloque[] bloques) {
+           boolean hayBloqueDebajo = false;
+
+           for (Bloque bloque : bloques) {
+               if (bloque != null && colisionaConParteInferior(bloque)) {
+                   hayBloqueDebajo = true;
+                   aterrizar(bloque.getY() - 30);
+                   break;
+               }
+           }
+
+           if (!hayBloqueDebajo) {
+               this.y += velocidadY;
+               velocidadY += gravedad;
+           } else {
+               velocidadY = 0;
+           }
+       }
+
+       public boolean colisionaConParteInferior(Bloque bloque) {
+           return (x < bloque.getX() + 30 && x + 30 > bloque.getX() &&
+                   y + 30 <= bloque.getY() && y + 30 + velocidadY >= bloque.getY());
+       }
+
+       public void aterrizar(double nuevaY) {
+           this.y = nuevaY;
+           velocidadY = 0;
+       }
+    
+    
+    
+    
 }

@@ -17,15 +17,14 @@ public class Princesa {
 	Integer ciclo = 0;
 	
 	boolean saltando = false;
-	double velocidadSalto = 12;
+	double velocidadSalto = 17;
 	double gravedad = 0.9;
-	double velocidadY = 0;
+	double velocidadY = 12;
 	double posicionInicialY;
 	
 	
 	
 	public Princesa(double x, double y) {
-		super();
 		this.setX(x);
 		this.y = y;
 		this.posicionInicialY = y;
@@ -39,53 +38,32 @@ public class Princesa {
 
 	
 
-	public void dibujarse(Entorno entorno,Integer ticks){
-		
-		
+	public void dibujarse(Entorno entorno,Integer ticks){		
 		if (saltando) {
 	        this.y += velocidadY;
 	        velocidadY += gravedad;
-
-	        // Si alcanza el suelo
-	        if (this.y >= posicionInicialY) {
-	            this.y = posicionInicialY;
-	            saltando = false;
-	        }
 	    }
 		ciclo = ticks % 40;
 		
-		if(this.direccion == 0) {
-			if(ciclo >= 0 && ciclo < 21) {
-		 		this.dibujarDerecha1(entorno);
-			}else if(ciclo > 20 && ciclo <=40) {
-				this.dibujarDerecha2(entorno);
-			}
-		}else if(this.direccion == 1){
-			if(ciclo >= 0 && ciclo < 21) {
-				this.dibujarIzquierda1(entorno);
-			}else if(ciclo > 20 && ciclo <=40) {
-				this.dibujarIzquierda2(entorno);
-			}
-		}else if(this.direccion == 4) {
-			this.dibujarDerecha1(entorno);
+		switch (direccion) {
+        case 0:
+            if (ciclo < 21) {
+                dibujarDerecha1(entorno);
+            } else {
+                dibujarDerecha2(entorno);
+            }
+            break;
+        case 1:
+            if (ciclo < 21) {
+                dibujarIzquierda1(entorno);
+            } else {
+                dibujarIzquierda2(entorno);
+            }
+            break;
+        case 4:
+            dibujarDerecha1(entorno);
+            break;
 		}
-		
-		if(this.direccion == 0) {
-	        if(ciclo >= 0 && ciclo < 21) {
-	            this.dibujarDerecha1(entorno);
-	        } else if(ciclo > 20 && ciclo <= 40) {
-	            this.dibujarDerecha2(entorno);
-	        }
-	    } else if(this.direccion == 1) {
-	        if(ciclo >= 0 && ciclo < 21) {
-	            this.dibujarIzquierda1(entorno);
-	        } else if(ciclo > 20 && ciclo <= 40) {
-	            this.dibujarIzquierda2(entorno);
-	        }
-	    } else if(this.direccion == 4) {
-	        this.dibujarDerecha1(entorno);
-	    }
-		
 		
 	}
 	
@@ -101,9 +79,7 @@ public class Princesa {
 	public void dibujarIzquierda2(Entorno entorno) {
 		entorno.dibujarImagen(img4, this.getX(), this.y, 0, 0.08);
 	}
-	
-	 
-	
+
 	
 	
 	public void moverDerecha() {
@@ -138,4 +114,70 @@ public class Princesa {
 	        }
 	 }
 
-}
+
+	 public void detenerSalto(double posicionBloque) {
+	        if (this.velocidadY < 0) {
+	            this.y = posicionBloque + 30; // Ajusta la posición de la princesa para que no pase a través del bloque
+	            this.velocidadY = 0; // Detén el movimiento vertical
+	        }
+	    }
+
+
+	    public void aplicarGravedad(Bloque[] bloques) {
+	        boolean hayBloqueDebajo = false;
+
+	        for (Bloque bloque : bloques) {
+	            if (bloque != null && colisionaConParteInferior(bloque)) {
+	                hayBloqueDebajo = true;
+	                if (saltando && velocidadY > 0) {
+	                    aterrizar(bloque.getY() - 30);
+	                }
+	                break;
+	            }
+	        }
+
+	        if (!hayBloqueDebajo && !saltando) {
+	            saltando = true;
+	            velocidadY = 0; // Reiniciar velocidad de caída
+	        }
+
+	        if (saltando || estaSobreBloqueDestruido(bloques)) {
+	            this.y += velocidadY;
+	            velocidadY += gravedad;
+	        }
+	    }
+
+	    public boolean colisionaConParteInferior(Bloque bloque) {
+	        return (getX() < bloque.getX() + 30 && getX() + 30 > bloque.getX() &&
+	                getY() + 30 <= bloque.getY() && getY() + 30 + velocidadY >= bloque.getY());
+	    }
+
+	    public boolean estaSaltando() {
+	        return saltando;
+	    }
+
+	    public void aterrizar(double nuevaY) {
+	        this.y = nuevaY;
+	        saltando = false;
+	        velocidadY = 0;
+	    }
+	    public boolean estaSobreBloqueDestruido(Bloque[] bloques) {
+	        for (Bloque bloque : bloques) {
+	            if (bloque != null && colisionaConParteInferior(bloque) && bloque.esRompible() && bloque.getX() == -1000) {
+	                return true;
+	            }
+	        }
+	        return false;
+	    }
+
+
+	    public double getY() {
+	        return y;
+	    }
+
+	   /* public DisparoPrincesa disparar(Entorno e){
+	            return new DisparoPrincesa(this.x - 80, this.y, false, e);
+
+	    }*/
+	}
+
