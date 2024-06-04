@@ -237,5 +237,9 @@ public class Princesa {
 		puedeDisparar = true; // Permitir disparar de nuevo
 	}
 
+	public List<DisparoPrincesa> getDisparosActivos() {
+		return this.disparosActivos; // Asumiendo que tienes una lista llamada disparosActivos en la clase Princesa
+	}
+
 }
 

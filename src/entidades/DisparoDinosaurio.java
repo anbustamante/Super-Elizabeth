@@ -29,6 +29,13 @@ public class DisparoDinosaurio {
         }
     }
 
+    public boolean colisionaDisparo(DisparoPrincesa disparoPrincesa) {
+        return this.x < disparoPrincesa.getX() + 10 &&
+                this.x + 10 > disparoPrincesa.getX() &&
+                this.y < disparoPrincesa.getY() + 10 &&
+                this.y + 10 > disparoPrincesa.getY();
+    }
+
     public void dibujar(Entorno entorno) {
         entorno.dibujarImagen(imagen, x, y, 0, 0.5);
     }

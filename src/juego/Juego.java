@@ -22,7 +22,7 @@ import entorno.Herramientas;
 import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego {
-	// El objeto Entorno que controla el tiempo y otros
+	/* El objeto Entorno que controla el tiempo y otros*/
 	private Entorno entorno;	
 	private int ticksCounter = 0;
 	private Princesa princesa;
@@ -43,7 +43,7 @@ public class Juego extends InterfaceJuego {
 	// Variables y métodos propios de cada grupo
 	// ...
 	
-	//disparos dinosaurio
+	/*disparos dinosaurio*/
 	private int tiempoDisparos = 0;
     private int tiempoEntreDisparosDinosaurio = 200;
     private List<DisparoDinosaurio> disparosActivosDinosaurio;
@@ -54,7 +54,7 @@ public class Juego extends InterfaceJuego {
 		
 		this.puntaje = 0;
 		
-		//Carga menu
+		/*Carga menu*/
         menu = new Menu();
         MenuPerder = new MenuPerder();
 		MenuGanar = new MenuGanar();
@@ -99,7 +99,7 @@ public class Juego extends InterfaceJuego {
 	        
 			if (princesa.estaViva()) {
 				if (princesa.getY() <= 0) {
-			        // evalua si gana
+			        /*evalua si gana*/
 					enJuego = false;
 			        tipoMenu = 2;
 			    }
@@ -121,7 +121,7 @@ public class Juego extends InterfaceJuego {
 			
 			tiempoDisparos++;
 	        if (tiempoDisparos >= tiempoEntreDisparosDinosaurio) {
-	            // Dispara para cada dinosaurio en la lista
+	            /* Dispara para cada dinosaurio en la lista*/
 	            for (Dinosaurio dinosaurio : dinosaurios) {
 	                dinosaurio.disparar(disparosActivosDinosaurio);
 	            }
@@ -136,6 +136,7 @@ public class Juego extends InterfaceJuego {
 		
 			
 			detectarColisiones();
+			detectarColisionesDisparos();
 		}
 	}
 
@@ -152,17 +153,17 @@ public class Juego extends InterfaceJuego {
 			princesa.estaQuieta();
 		}
 		
-		if (entorno.estaPresionada('x')) {
+		if (entorno.estaPresionada('x')|| (entorno.estaPresionada(entorno.TECLA_ARRIBA))) {
 			princesa.saltar();
 		}else{
 			princesa.liberarTeclaSalto();
 		}
-		if (entorno.sePresiono('c')) {
+		if (entorno.sePresiono('c')|| (entorno.estaPresionada(entorno.TECLA_ESPACIO))) {
 			princesa.disparar(entorno);
 
 		}
 
-		if (!entorno.estaPresionada('c')) {
+		if (!entorno.estaPresionada('c')&& (!entorno.estaPresionada(entorno.TECLA_ESPACIO))) {
 			princesa.resetDisparo(); // Permitir disparar de nuevo al soltar la tecla
 		}
 		
@@ -184,7 +185,6 @@ public class Juego extends InterfaceJuego {
 				}
 			}
 		}
-
 		for (Dinosaurio dinosaurio : dinosaurios) {
 			if (colisiona(princesa, dinosaurio)) {
 				princesa.muerta();
@@ -206,7 +206,23 @@ public class Juego extends InterfaceJuego {
 	    }
 	    
 	}
+	private void detectarColisionesDisparos() {
+		List<DisparoPrincesa> disparosPrincesaAEliminar = new ArrayList<>();
+		List<DisparoDinosaurio> disparosDinosaurioAEliminar = new ArrayList<>();
 
+		for (DisparoPrincesa disparoPrincesa : princesa.getDisparosActivos()) {
+			for (DisparoDinosaurio disparoDinosaurio : disparosActivosDinosaurio) {
+				if (disparoPrincesa.colisionaBomba(disparoDinosaurio)) {
+					disparosPrincesaAEliminar.add(disparoPrincesa);
+					disparosDinosaurioAEliminar.add(disparoDinosaurio);
+				}
+			}
+		}
+
+		// Eliminar disparos colisionados
+		princesa.getDisparosActivos().removeAll(disparosPrincesaAEliminar);
+		disparosActivosDinosaurio.removeAll(disparosDinosaurioAEliminar);
+	}
 
 
 	private boolean colisiona(Princesa princesa, Bloque bloque) {

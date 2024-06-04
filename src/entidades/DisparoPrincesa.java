@@ -18,6 +18,13 @@ public class DisparoPrincesa {
         this.img = Herramientas.cargarImagen("sprites/disparo.png");
     }
 
+    public boolean colisionaBomba(DisparoDinosaurio disparoDinosaurio) {
+        return this.x < disparoDinosaurio.getX() + 10 &&
+                this.x + 10 > disparoDinosaurio.getX() &&
+                this.y < disparoDinosaurio.getY() + 10 &&
+                this.y + 10 > disparoDinosaurio.getY();
+    }
+
     public void dibujarse(Entorno entorno) {
         entorno.dibujarImagen(img, x, y, 0, 0.08);
     }
