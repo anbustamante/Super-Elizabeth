@@ -10,6 +10,7 @@ import javax.sound.sampled.Clip;
 
 import entidades.Bloque;
 import entidades.Dinosaurio;
+import entidades.DisparoDinosaurio;
 import entidades.DisparoPrincesa;
 import entidades.Fondo;
 import entidades.Menu;
@@ -41,6 +42,11 @@ public class Juego extends InterfaceJuego {
 	int SEPARACION = 140;
 	// Variables y métodos propios de cada grupo
 	// ...
+	
+	//disparos dinosaurio
+	private int tiempoDisparos = 0;
+    private int tiempoEntreDisparosDinosaurio = 200;
+    private List<DisparoDinosaurio> disparosActivosDinosaurio;
 
 	Juego() {
 		Random rand = new Random();
@@ -60,6 +66,7 @@ public class Juego extends InterfaceJuego {
 		fondo = new Fondo(400,300);
 		princesa = new Princesa(400, 535, this);
 		dinosaurios = new ArrayList<>();
+		disparosActivosDinosaurio = new ArrayList<>();
 
         inicializarDinosaurios();
 		
@@ -110,7 +117,24 @@ public class Juego extends InterfaceJuego {
 			if (princesa.estaViva()) {
 				princesa.dibujarDisparos(entorno, dinosaurios);
 			}
+			
+			
+			tiempoDisparos++;
+	        if (tiempoDisparos >= tiempoEntreDisparosDinosaurio) {
+	            // Dispara para cada dinosaurio en la lista
+	            for (Dinosaurio dinosaurio : dinosaurios) {
+	                dinosaurio.disparar(disparosActivosDinosaurio);
+	            }
+	            tiempoDisparos = 0;
+	        }
+			
+			for (DisparoDinosaurio disparo : disparosActivosDinosaurio) {
+	            disparo.mover();
+	            disparo.dibujar(entorno);
+	        }
 
+		
+			
 			detectarColisiones();
 		}
 	}
@@ -170,6 +194,17 @@ public class Juego extends InterfaceJuego {
 			}
 			
 		}
+		
+		// Verificar colisiones con los disparos de los dinosaurios
+	    for (DisparoDinosaurio disparo : disparosActivosDinosaurio) {
+	        if (colisiona(princesa, disparo)) {
+	            princesa.muerta();
+	            tipoMenu = 1;
+	            enJuego = false;
+	            break;
+	        }
+	    }
+	    
 	}
 
 
@@ -187,6 +222,12 @@ public class Juego extends InterfaceJuego {
 				princesa.getY() + 30 > dinosaurio.getY();
 	}
 
+	private boolean colisiona(Princesa princesa, DisparoDinosaurio disparo) {
+	    return princesa.getX() < disparo.getX() + 30 &&
+	            princesa.getX() + 30 > disparo.getX() &&
+	            princesa.getY() < disparo.getY() + 30 &&
+	            princesa.getY() + 30 > disparo.getY();
+	}
 	
 	
 	

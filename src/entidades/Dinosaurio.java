@@ -1,6 +1,7 @@
 package entidades;
 
 import java.awt.Image;
+import java.util.List;
 
 import entorno.Entorno;
 import entorno.Herramientas;
@@ -13,10 +14,12 @@ public class Dinosaurio {
     Image img2;
     Image img3;
     Image img4;
+    Image img5;
     int direccion; // 0: derecha, 1: izquierda
     Integer ciclo;
     double velocidadY = 0;
     double gravedad = 0.9;
+    
     
     public Dinosaurio(double x, double y) {
         this.x = x;
@@ -27,6 +30,7 @@ public class Dinosaurio {
         this.img2 = Herramientas.cargarImagen("sprites/dyno-quieto-der.png");
         this.img3 = Herramientas.cargarImagen("sprites/dyno-corriendo-izq.png");
         this.img4 = Herramientas.cargarImagen("sprites/dyno-corriendo-der.png");
+        this.img5 = Herramientas.cargarImagen("sprites/bomb.png");
     }
 
     public double getY() {
@@ -117,5 +121,12 @@ public class Dinosaurio {
            this.y = nuevaY;
            velocidadY = 0;
        }
+       
+       public void disparar(List<DisparoDinosaurio> disparosActivos) {
+    	    // Crea un nuevo disparo y agrega a la lista de disparos activos
+    	    DisparoDinosaurio disparo = new DisparoDinosaurio(this.x, this.y, img5, direccion);
+    	    disparosActivos.add(disparo);
+    	}
+       
 
 }
