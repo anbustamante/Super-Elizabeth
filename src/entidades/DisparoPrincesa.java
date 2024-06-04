@@ -8,28 +8,22 @@ public class DisparoPrincesa {
 
 	private double x;
     private double y;
-    private int velocidad;
-    private double tamanio;
+    private final double velocidad;
     private Image img;
 
-    public DisparoPrincesa(double x, double y, boolean direccion, Entorno e) {
-        this.x = x + 100;
-        this.y = y - 10;
-        this.tamanio = 0.6;
+    public DisparoPrincesa(double x, double y, boolean haciaDerecha) {
+        this.x = x;
+        this.y = y;
+        this.velocidad = haciaDerecha ? 5 : -5;
         this.img = Herramientas.cargarImagen("sprites/disparo.png");
-        this.velocidad = direccion ? 10 : -10;
     }
 
-    public void dibujar(Entorno e) {
-        e.dibujarImagen(img, x, y, 0, tamanio);
+    public void dibujarse(Entorno entorno) {
+        entorno.dibujarImagen(img, x, y, 0, 0.08);
     }
 
-    public void mover(Entorno e) {
-        x += velocidad;
-    }
-
-    public boolean llegoAlBordeDeLaPantalla(Entorno e) {
-        return x > e.ancho() || x < 0;
+    public void mover() {
+        this.x += velocidad;
     }
 
     public double getX() {
@@ -39,5 +33,4 @@ public class DisparoPrincesa {
     public double getY() {
         return y;
     }
-
 }

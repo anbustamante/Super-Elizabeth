@@ -6,13 +6,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.sound.sampled.Clip;
+
 import entidades.Bloque;
 import entidades.Dinosaurio;
 import entidades.DisparoPrincesa;
 import entidades.Fondo;
 import entidades.Menu;
+import entidades.MenuGanar;
+import entidades.MenuPerder;
 import entidades.Princesa;
 import entorno.Entorno;
+import entorno.Herramientas;
 import entorno.InterfaceJuego;
 
 public class Juego extends InterfaceJuego {
@@ -24,7 +29,13 @@ public class Juego extends InterfaceJuego {
     private List<Dinosaurio> dinosaurios; 
 	private Fondo fondo;
 	private Menu menu;
+	private MenuPerder MenuPerder;
+	private MenuGanar MenuGanar;
+	private int puntaje;
+	private int muertes;
     private boolean enJuego;
+    public int tipoMenu = 0;
+    private Clip musicaJuego = Herramientas.cargarSonido("sounds/musica-juego.wav");
 	private Bloque[] bloques = new Bloque[600];
 	int ANCHO_DE_BLOQUES = 27;
 	int SEPARACION = 150;
@@ -35,15 +46,19 @@ public class Juego extends InterfaceJuego {
 		Random rand = new Random();
 		this.entorno = new Entorno(this, " Super Elizabeth Sis, Volcano Edition - Grupo ... - v1", 800, 600);
 		
+		this.puntaje = 0;
+		
 		//Carga menu
         menu = new Menu();
+        MenuPerder = new MenuPerder();
+		MenuGanar = new MenuGanar();
         enJuego = false;
         
         
 		inicializarBloques(570,27,false);
 		
 		fondo = new Fondo(400,300);
-		princesa = new Princesa(400, 535);
+		princesa = new Princesa(400, 535, this);
 		dinosaurios = new ArrayList<>();
 
         inicializarDinosaurios();
@@ -53,27 +68,46 @@ public class Juego extends InterfaceJuego {
 
 
 	public void tick() {
+		
 		if (!enJuego) {
-            menu.dibujar(entorno);
-            menu.play(entorno);
-            if (menu.isJuegoIniciado()) {
-                enJuego = true;
-            }
-        } else {
-			ticksCounter+=2;
+	        if (tipoMenu == 0) {
+	            menu.dibujar(entorno);
+	            menu.play(entorno);
+	            if (menu.isJuegoIniciado()) {
+	                enJuego = true;
+	                musicaJuego.start();
+	            }
+	        } else if (tipoMenu == 1) {
+	            MenuPerder.dibujar(entorno, puntaje, muertes);
+	        } else if (tipoMenu == 2) {
+	            MenuGanar.dibujar(entorno, puntaje, muertes);
+	        }
+	    } else {
+	        
+			ticksCounter += 2;
 			fondo.dibujarse(entorno);
-			princesa.dibujarse(entorno, ticksCounter);
+			entorno.cambiarFont("Arial", 20, java.awt.Color.WHITE);
+	        entorno.escribirTexto("Puntaje: " + puntaje, entorno.ancho() / 4 - 180, entorno.alto() - 575);
+	        entorno.escribirTexto("Dinosaurios muertos: " + muertes, entorno.ancho() / 4 - 180, entorno.alto() - 550);
+	        
+			if (princesa.estaViva()) {
+				princesa.dibujarse(entorno, ticksCounter);
+				movimientosPrincesa();
+				princesa.aplicarGravedad(bloques);
+			}
 			dibujarPisoSolido();
-			movimientosPrincesa();
-			princesa.aplicarGravedad(bloques);
 
 			for (Dinosaurio dinosaurio : dinosaurios) {
-                dinosaurio.dibujarse(entorno, ticksCounter);
-                dinosaurio.aplicarGravedad(bloques);
-            }
-			
+				dinosaurio.dibujarse(entorno, ticksCounter);
+				dinosaurio.aplicarGravedad(bloques);
+			}
+
+			if (princesa.estaViva()) {
+				princesa.dibujarDisparos(entorno, dinosaurios);
+			}
+
 			detectarColisiones();
-        }
+		}
 	}
 
 	private void movimientosPrincesa() {
@@ -89,42 +123,64 @@ public class Juego extends InterfaceJuego {
 			princesa.estaQuieta();
 		}
 		
-		if (entorno.estaPresionada(entorno.TECLA_ARRIBA) && entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+		if (entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
 			princesa.saltar();
+		}else{
+			princesa.liberarTeclaSalto();
+		}
+		if (entorno.sePresiono(entorno.TECLA_ESPACIO)) {
+			princesa.disparar(entorno);
+
+		}
+
+		if (!entorno.estaPresionada(entorno.TECLA_ESPACIO)) {
+			princesa.resetDisparo(); // Permitir disparar de nuevo al soltar la tecla
 		}
 		
-		/*  if (entorno.estaPresionada(entorno.TECLA_ESPACIO)) {
-        princesa.disparar(entorno);
-    }*/
-		
 	}
-	
-	 private void detectarColisiones() {
-	        for (int i = 0; i < bloques.length; i++) {
-	            Bloque bloque = bloques[i];
-	            if (bloque != null && colisiona(princesa, bloque)) {
-	                if (princesa.estaSaltando()) {
-	                    if (bloque.esRompible()) {
-	                        bloques[i] = null; // Destruir el bloque rompible
-	                        princesa.aterrizar(bloque.getY() - 30); // Ajustar posición de la princesa
-	                    } else if (princesa.getY() < bloque.getY()) {
-	                        princesa.aterrizar(bloque.getY() - 30); // Ajustar posición de la princesa
-	                    } else {
-	                        princesa.detenerSalto(bloque.getY()); // Detener el salto si colisiona desde abajo
-	                    }
-	                }
-	            }
 
-	        }
-	    }
+	private void detectarColisiones() {
+		for (int i = 0; i < bloques.length; i++) {
+			Bloque bloque = bloques[i];
+			if (bloque != null && colisiona(princesa, bloque)) {
+				if (princesa.estaSaltando()) {
+					if (bloque.esRompible()) {
+						bloques[i] = null; // Destruir el bloque rompible
+						princesa.aterrizar(bloque.getY() - 30); // Ajustar posición de la princesa
+					} else if (princesa.getY() < bloque.getY()) {
+						princesa.aterrizar(bloque.getY() - 30); // Ajustar posición de la princesa
+					} else {
+						princesa.detenerSalto(bloque.getY()); // Detener el salto si colisiona desde abajo
+					}
+				}
+			}
+		}
+
+		for (Dinosaurio dinosaurio : dinosaurios) {
+			if (colisiona(princesa, dinosaurio)) {
+				princesa.muerta();
+				tipoMenu =1;
+				enJuego = false; 
+				break;
+			}
+			
+		}
+	}
 
 
-	    private boolean colisiona(Princesa princesa, Bloque bloque) {
+
+	private boolean colisiona(Princesa princesa, Bloque bloque) {
 	        return princesa.getX() < bloque.getX() + 30 &&
 	                princesa.getX() + 30 > bloque.getX() &&
 	                princesa.getY() < bloque.getY() + 30 &&
 	                princesa.getY() + 30 > bloque.getY();
 	    }
+	private boolean colisiona(Princesa princesa, Dinosaurio dinosaurio) {
+		return princesa.getX() < dinosaurio.getX() + 30 &&
+				princesa.getX() + 30 > dinosaurio.getX() &&
+				princesa.getY() < dinosaurio.getY() + 30 &&
+				princesa.getY() + 30 > dinosaurio.getY();
+	}
 
 	
 	
@@ -172,6 +228,11 @@ public class Juego extends InterfaceJuego {
 	                dinosaurios.add(new Dinosaurio(xPos, altura - 30));
 	            }
 	        }
+	    }
+	    
+	    public void incrementarPuntaje() {
+	        puntaje+=2;
+	        muertes++;
 	    }
 	    
 	

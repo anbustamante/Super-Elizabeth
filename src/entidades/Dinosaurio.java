@@ -29,12 +29,42 @@ public class Dinosaurio {
         this.img4 = Herramientas.cargarImagen("sprites/dyno-corriendo-der.png");
     }
 
+    public double getY() {
+        return y;
+    }
+    public double getX() {
+        return x;
+    }
+
+    public void moverDerecha() {
+        this.x += 1.5;
+        this.direccion = 0;
+    }
+
+    public void moverIzquierda() {
+        this.x -= 1.5;
+        this.direccion = 1;
+    }
+
+    public void moverAutomaticamente() {
+        //cambia dirreción
+        if (this.x <= 10) {
+            direccion = 0;
+        } else if (this.x >= 790) {
+            direccion = 1;
+        }
+        //mueve el dinosaurio
+        if (direccion == 1) {
+            moverIzquierda();
+        } else if (direccion == 0) {
+            moverDerecha();
+        }
+    }
+
     public void dibujarse(Entorno entorno, Integer ticks) {
     	// Alterna entre 0 y 1 cada 10 ticks para cambiar la imagen de caminata
-    	ciclo = (ticks / 10) % 2; 
-        
+    	ciclo = (ticks / 10) % 2;
         moverAutomaticamente();
-        
         if (direccion == 1) {
             dibujarIzquierda(entorno);
         } else if (direccion == 0) {
@@ -57,34 +87,6 @@ public class Dinosaurio {
             entorno.dibujarImagen(img3, this.x, this.y, 0, 0.08);
         }
     }
-    
-    public void moverDerecha() {
-        this.x += 1.5;
-        this.direccion = 0;
-    }
-
-    public void moverIzquierda() {
-        this.x -= 1.5;
-        this.direccion = 1;
-    }
-
-    // Método para mover automáticamente el dinosaurio
-    public void moverAutomaticamente() {
-    	//cambia dirreción
-        if (this.x <= 10) {
-            direccion = 0; 
-        } else if (this.x >= 790) {
-            direccion = 1;
-        }
-        
-        //mueve el dinosaurio
-        if (direccion == 1) {
-            moverIzquierda();
-        } else if (direccion == 0) {
-            moverDerecha();
-        }
-    }
-    
 
     // Método para aplicar la gravedad al dinosaurio
        public void aplicarGravedad(Bloque[] bloques) {
@@ -115,8 +117,5 @@ public class Dinosaurio {
            this.y = nuevaY;
            velocidadY = 0;
        }
-    
-    
-    
-    
+
 }

@@ -1,9 +1,12 @@
 package entidades;
 
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.List;
 
 import entorno.Entorno;
 import entorno.Herramientas;
+import juego.Juego;
 
 public class Princesa {
 	
@@ -15,16 +18,17 @@ public class Princesa {
 	Image img4;
 	int direccion = 4;
 	Integer ciclo = 0;
-	
 	boolean saltando = false;
 	double velocidadSalto = 17;
 	double gravedad = 0.9;
 	double velocidadY = 12;
 	double posicionInicialY;
+	private boolean teclaSaltoPresionada = false;
+	private Juego juego;
 	
 	
 	
-	public Princesa(double x, double y) {
+	public Princesa(double x, double y, Juego juego) {
 		this.setX(x);
 		this.y = y;
 		this.posicionInicialY = y;
@@ -33,10 +37,27 @@ public class Princesa {
 		this.img2 = Herramientas.cargarImagen("sprites/princesa-corriendo-der.png");
 		this.img3 = Herramientas.cargarImagen("sprites/princesa-quieta-izq.png");
 		this.img4 = Herramientas.cargarImagen("sprites/princesa-corriendo-izq.png");
-		
+		this.juego = juego;
+	}
+	public double getX() {
+		return x;
 	}
 
-	
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	private boolean viva = true;
+
+
+	public boolean estaViva() {
+		return viva;
+	}
+
+	public void muerta() {
+		viva = false;
+	}
+
 
 	public void dibujarse(Entorno entorno,Integer ticks){		
 		if (saltando) {
@@ -93,13 +114,7 @@ public class Princesa {
         this.direccion = 1;
     }
 
-	public double getX() {
-		return x;
-	}
 
-	public void setX(double x) {
-		this.x = x;
-	}
 
 	
 	//Esta funcion es para poder hacer que cuando no se presionen teclas
@@ -107,12 +122,19 @@ public class Princesa {
 	public void estaQuieta() {
 		this.direccion=4;
 	}
-	 public void saltar() {
-	        if (!saltando) {
-	            saltando = true;
-	            velocidadY = -velocidadSalto;
-	        }
-	 }
+
+
+	public void saltar() {
+		if (!saltando && !teclaSaltoPresionada) {
+			saltando = true;
+			velocidadY = -velocidadSalto;
+			teclaSaltoPresionada = true;
+		}
+	}
+
+	public void liberarTeclaSalto() {
+		teclaSaltoPresionada = false;
+	}
 
 
 	 public void detenerSalto(double posicionBloque) {
@@ -169,15 +191,51 @@ public class Princesa {
 	        }
 	        return false;
 	    }
-
-
-	    public double getY() {
+		public double getY() {
 	        return y;
 	    }
 
-	   /* public DisparoPrincesa disparar(Entorno e){
-	            return new DisparoPrincesa(this.x - 80, this.y, false, e);
+	private List<DisparoPrincesa> disparosActivos = new ArrayList<>();
+	private boolean puedeDisparar = true; // Nueva variable para controlar si se puede disparar
 
-	    }*/
+	public void disparar(Entorno entorno) {
+		if (puedeDisparar) {
+			DisparoPrincesa disparo = new DisparoPrincesa(this.x, this.y, direccion == 0 || direccion == 4);
+			disparosActivos.add(disparo);
+			puedeDisparar = false; // Bloquear disparo hasta que se suelte la tecla
+		}
 	}
+
+	public void dibujarDisparos(Entorno entorno, List<Dinosaurio> dinosaurios) {
+		List<DisparoPrincesa> disparosParaEliminar = new ArrayList<>();
+		for (DisparoPrincesa disparo : disparosActivos) {
+			disparo.dibujarse(entorno);
+			disparo.mover();
+			for (Dinosaurio dinosaurio : dinosaurios) {
+				if (colisiona(disparo, dinosaurio)) {
+					dinosaurios.remove(dinosaurio);
+					disparosParaEliminar.add(disparo);
+					juego.incrementarPuntaje();
+					break; // Termina el disparo después de eliminar un dinosaurio
+				}
+			}
+			if (disparo.getX() < 0 || disparo.getX() > entorno.ancho()) {
+				disparosParaEliminar.add(disparo);
+			}
+		}
+		disparosActivos.removeAll(disparosParaEliminar);
+	}
+
+	private boolean colisiona(DisparoPrincesa disparo, Dinosaurio dinosaurio) {
+		return disparo.getX() < dinosaurio.getX() + 30 &&
+				disparo.getX() + 10 > dinosaurio.getX() &&
+				disparo.getY() < dinosaurio.getY() + 30 &&
+				disparo.getY() + 10 > dinosaurio.getY();
+	}
+
+	public void resetDisparo() {
+		puedeDisparar = true; // Permitir disparar de nuevo
+	}
+
+}
 
