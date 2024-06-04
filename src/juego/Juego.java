@@ -128,17 +128,17 @@ public class Juego extends InterfaceJuego {
 			princesa.estaQuieta();
 		}
 		
-		if (entorno.estaPresionada(entorno.TECLA_ARRIBA)) {
+		if (entorno.estaPresionada('x')) {
 			princesa.saltar();
 		}else{
 			princesa.liberarTeclaSalto();
 		}
-		if (entorno.sePresiono(entorno.TECLA_ESPACIO)) {
+		if (entorno.sePresiono('c')) {
 			princesa.disparar(entorno);
 
 		}
 
-		if (!entorno.estaPresionada(entorno.TECLA_ESPACIO)) {
+		if (!entorno.estaPresionada('c')) {
 			princesa.resetDisparo(); // Permitir disparar de nuevo al soltar la tecla
 		}
 		
