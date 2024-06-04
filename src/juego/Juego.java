@@ -38,7 +38,7 @@ public class Juego extends InterfaceJuego {
     private Clip musicaJuego = Herramientas.cargarSonido("sounds/musica-juego.wav");
 	private Bloque[] bloques = new Bloque[600];
 	int ANCHO_DE_BLOQUES = 27;
-	int SEPARACION = 150;
+	int SEPARACION = 140;
 	// Variables y métodos propios de cada grupo
 	// ...
 
@@ -87,10 +87,15 @@ public class Juego extends InterfaceJuego {
 			ticksCounter += 2;
 			fondo.dibujarse(entorno);
 			entorno.cambiarFont("Arial", 20, java.awt.Color.WHITE);
-	        entorno.escribirTexto("Puntaje: " + puntaje, entorno.ancho() / 4 - 180, entorno.alto() - 575);
-	        entorno.escribirTexto("Dinosaurios muertos: " + muertes, entorno.ancho() / 4 - 180, entorno.alto() - 550);
+	        entorno.escribirTexto("Puntaje: " + puntaje, entorno.ancho() / 4 - 180, entorno.alto() - 555);
+	        entorno.escribirTexto("Dinosaurios muertos: " + muertes, entorno.ancho() / 4 - 180, entorno.alto() - 535);
 	        
 			if (princesa.estaViva()) {
+				if (princesa.getY() <= 0) {
+			        // evalua si gana
+					enJuego = false;
+			        tipoMenu = 2;
+			    }
 				princesa.dibujarse(entorno, ticksCounter);
 				movimientosPrincesa();
 				princesa.aplicarGravedad(bloques);
@@ -195,7 +200,7 @@ public class Juego extends InterfaceJuego {
 
 	    private void inicializarBloques(int altura, int cantidad, boolean rompible) {
 	        int x = 10;
-	        int numFilas = 4;
+	        int numFilas = 5;
 	        Random r = new Random();
 
 	        for (int fila = 0; fila < numFilas; fila++) {
